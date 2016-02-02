@@ -2,3 +2,4 @@
 /src/start.php
 /vendor
 .idea
+composer.lock
