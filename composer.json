@@ -16,5 +16,8 @@
     "psr-4": {
       "csvImporter\\": "src/"
     }
+  },
+  "scripts": {
+    "csvImport": "php app/start.php"
   }
 }
