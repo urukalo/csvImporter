@@ -1,12 +1,12 @@
 {
   "name": "urukalo/csvImporter",
   "description": "csv importer",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "license": "proprietary",
   "authors": [
     {
-      "name": "author's name",
-      "email": "email@example.com"
+      "name": "Milan Urukalo",
+      "email": "urukalo@gmail.com"
     }
   ],
   "require": {
@@ -14,10 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "App\\": "src/"
+      "csvImporter\\": "src/"
     }
-  },
-  "scripts": {
-    "csvImport": "php app/start.php"
   }
 }

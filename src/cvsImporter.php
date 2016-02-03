@@ -1,4 +1,6 @@
 <?php
+namespace csvImporter;
+
 use League\Csv\Reader;
 
 class csvImporter
