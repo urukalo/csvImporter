@@ -1,8 +1,8 @@
 {
-  "name": "urukalo/csvImporter",
+  "name": "urukalo/csvimporter",
   "description": "csv importer",
   "keywords": ["cvs","import", "mysql"],
-  "homepage": "https://github.com/urukalo/csvImporter",
+  "homepage": "https://github.com/urukalo/csvimporter",
   "license": "MIT",
   "authors": [
     {
