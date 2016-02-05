@@ -13,14 +13,41 @@ class csvImporter
     private $update_where;
     private $extra_values = [];
     private $extra_fields = [];
+    private $csvPath;
 
     /**
      * csvImporter constructor.
      * @param PDOStatement $dbh
      */
-    public function __construct($dbh)
+    public function __construct($dbh, $csvPath)
     {
         $this->dbh = $dbh;
+        $this->csvPath = $csvPath;
+    }
+
+    /**
+     * @param $configs
+     * @return string
+     */
+    public function run($configs)
+    {
+        foreach ($configs as $config) {
+
+            if (isset($config['update_where'])) {
+                $this->setUpdateWhere($config['update_where']);
+            }
+            if (isset($config['extra_data'])) {
+                $this->addExtraData($config['extra_data']);
+            }
+
+            echo $this->import($config['fields'], $this->csvPath . $config['file'], $config['table'], !isset($config['update'])) ?
+                (isset($config['update']) ?
+                    $config['table'] . "... updated!\n"
+                    :
+                    $config['table'] . "... imported!\n")
+                :
+                $config['table'] . "... FAILED!\n";
+        }
     }
 
     /**
@@ -29,34 +56,36 @@ class csvImporter
      * @param $table
      * @return mixed
      */
-    public function import($fields, $file, $table, $insert = true)
+    private function import($fields, $file, $table, $insert = true)
     {
 
         $this->table = $table;
         $this->fields = $fields;
 
         $sql = $this->generateSQL($insert);
-//var_dump($sql);
+
         $this->sth = $this->dbh->prepare($sql);
 
         $csv = Reader::createFromPath($file);
-        $csv->setOffset(1); //because we don't want to insert the header
+
         $header = $csv->fetchOne();
-//var_dump($header);
+
         $csv->setOffset(1); //because we don't want to insert the header
 
-        $justDoIT = $csv->each(function ($row) use ($header) {
+        $justDoIT = $csv->each(function ($row) use ($header, $sql) {
             $this->attachBinds($row, $header);
 
             try {
                 $exec = $this->sth->execute();
             } catch (\ErrorException $e) {
                 echo $e->getMessage();
-                //var_dump($this);
-
             }
-//echo PHP_EOL;
-            return $exec; //if the function return false then the iteration will stop
+
+            if(!$exec) {
+                echo "--DEBUG: ", $sql, $this->lastParams, PHP_EOL;
+            }
+
+            return true;
         });
 
         if ($justDoIT) {
@@ -73,9 +102,8 @@ class csvImporter
      * @return string
      * @internal param $fields
      */
-    public function generateSQL($insert)
+    private function generateSQL($insert)
     {
-
         foreach ($this->fields as $field) {
             $names[] = $field;
             $values[] = ":" . $field;
@@ -95,14 +123,13 @@ class csvImporter
      * @internal param $fields
      * @internal param $sth
      */
-    function attachBinds($row, $heads)
+    private function attachBinds($row, $heads)
     {
 
-        //if (is_array($this->extra_fields) && is_array($this->extra_values)) {
-           $heads = array_merge($heads, $this->extra_fields);
+        if (is_array($this->extra_fields) && is_array($this->extra_values)) {
+            $heads = array_merge($heads, $this->extra_fields);
             $row = array_merge($row, $this->extra_values);
-        //}
-//var_dump($heads, $row, $this->extra_fields, $this->extra_values);
+        }
 
         $this->lastParams = '';
         foreach ($heads as $key => $head) {
@@ -120,17 +147,14 @@ class csvImporter
                 echo $e->getMessage();
             }
         }
-//var_dump($this->lastParams);
-
-
     }
 
-    public function setUpdateWhere($string)
+    private function setUpdateWhere($string)
     {
         $this->update_where = $string;
     }
 
-    public function addExtraData($extra_data)
+    private function addExtraData($extra_data)
     {
         foreach ($extra_data as $key => $value) {
             $this->extra_fields[] = $key;

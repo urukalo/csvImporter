@@ -1,36 +1,48 @@
 # csvImporter
 
-One Paragraph of project description goes here
+simple importer from csv file to mysql database 
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+add with composer
+make folder with cvs files (one file by database)
 
-### Prerequisities
+look down at usage example
 
-What things you need to install the software and how to install them
+### Usage
 
-```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you have to get a development env running
-
-Stay what the step will be
+here is one example for usage in laravel seeder
 
 ```
-Give the example
-```
+        $connection = new PDO('mysql:host=127.0.0.1;dbname=my_db;charset=utf8', 'my_user', 'my_pass', array(
+            PDO::ATTR_PERSISTENT => true
+        ));
+        
+        $csvPath = __DIR__."/csv/";
+        $importer = new csvImporter($connection, $csvPath);
 
-And repeat
+        $configs = [
 
+            [
+                'table' => 'table_name',
+                'fields' => [
+                    'CSV_ID' => 'table_id',
+                    'CreatedDate' => 'created_at',
+                    'ModifiedDate' => 'updated_at',
+                    'Website' => 'website',
+                    'FaceBook' => 'facebook',
+                    'Twitter' => 'twitter',
+                    'Instagram' => 'instagram',
+                    'ModifiedBy' => 'modified_by',
+                    'Enabled' => 'enabled'
+                ],
+                'file' => 'file_name.csv',
+            ]
+        ];
+        
+         echo $importer->run($configs);
+        
 ```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
@@ -72,7 +84,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Milan Urukalo** - *Initial work* - [PurpleBooth](https://github.com/urukalo)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
