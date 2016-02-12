@@ -21,6 +21,7 @@ class csvImporter
      */
     public function __construct($dbh, $csvPath)
     {
+        $dbh->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
         $this->dbh = $dbh;
         $this->csvPath = $csvPath;
     }
