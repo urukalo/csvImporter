@@ -1,4 +1,5 @@
 <?php
+
 namespace csvImporter;
 
 use League\Csv\Reader;
@@ -17,11 +18,14 @@ class csvImporter
 
     /**
      * csvImporter constructor.
-     * @param PDOStatement $dbh
+     *
+     * @param \PDO $dbh
      */
     public function __construct($dbh, $csvPath)
     {
-        $dbh->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        if ($dbh instanceof \PDO) {
+            $dbh->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        }
         $this->dbh = $dbh;
         $this->csvPath = $csvPath;
     }
@@ -41,7 +45,7 @@ class csvImporter
                 $this->addExtraData($config['extra_data']);
             }
 
-            echo $this->import($config['fields'], $this->csvPath . $config['file'], $config['table'], !isset($config['update'])) ?
+            echo $this->import($config['fields'], $this->csvPath . $config['file'], $config['table'], ! isset($config['update'])) ?
                 (isset($config['update']) ?
                     $config['table'] . "... updated!\n"
                     :
@@ -82,7 +86,7 @@ class csvImporter
                 echo $e->getMessage();
             }
 
-            if(!$exec) {
+            if (! $exec) {
                 echo "--DEBUG: ", $sql, $this->lastParams, PHP_EOL;
             }
 
@@ -138,7 +142,9 @@ class csvImporter
             $clean = trim($head, chr(239) . chr(187) . chr(191));
             $row[$key] = $row[$key] == 'NULL' ? null : $row[$key];
 
-            if (!isset($this->fields[$clean])) continue; //this one from csv isnt used in table
+            if (! isset($this->fields[$clean])) {
+                continue;
+            } //this one from csv isnt used in table
 
             $this->lastParams .= is_null($row[$key]) ? "null, " : "'" . ($row[$key]) . "', ";
 
